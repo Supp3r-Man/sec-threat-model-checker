@@ -14,7 +14,7 @@
 6. **Wrote the seeded generator** with one injector per rule, mixes, invalid-model injectors, and three evasion variants, then `demo` to print the measured table.
 7. **Wrote 44 tests**: validation (9), one per rule with boundaries (12), policy (9), render (2), real-subprocess CLI exit codes (7), seeded properties (5).
 8. **Mutation-checked** 12 deliberate breaks on a fresh copy each; a script prints "PATTERN MISSED" if a break did not apply. All 12 were killed.
-9. **Wrote README and this file**, then committed locally. Not pushed, CI has not run.
+9. **Wrote README and this file**, then committed locally. Pushed to both accounts; CI passed on Python 3.11 and 3.13.
 
 Problems and choices along the way:
 - First draft of the rules had an unreadable `__import__` hack and a circular import (`render` needed `effective` from `rules`); fixed before the first run.
