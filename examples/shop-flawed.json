@@ -1,0 +1,249 @@
+{
+ "name": "generated-3",
+ "zones": [
+  {
+   "id": "internet",
+   "trust": 0
+  },
+  {
+   "id": "dmz",
+   "trust": 1
+  },
+  {
+   "id": "app",
+   "trust": 2
+  },
+  {
+   "id": "data",
+   "trust": 3
+  }
+ ],
+ "components": [
+  {
+   "id": "user",
+   "type": "user",
+   "zone": "internet",
+   "logging": true
+  },
+  {
+   "id": "partner",
+   "type": "external",
+   "zone": "internet",
+   "logging": true
+  },
+  {
+   "id": "gateway",
+   "type": "service",
+   "zone": "dmz",
+   "logging": true,
+   "rate_limited": false,
+   "replicas": 2,
+   "critical": true,
+   "credential": "cred-gateway"
+  },
+  {
+   "id": "inventory",
+   "type": "service",
+   "zone": "app",
+   "logging": true,
+   "replicas": 2,
+   "critical": false,
+   "credential": "cred-inventory",
+   "admin_interface": {
+    "zones": [
+     "app"
+    ],
+    "mfa": true
+   }
+  },
+  {
+   "id": "notify",
+   "type": "service",
+   "zone": "app",
+   "logging": true,
+   "replicas": 2,
+   "critical": false,
+   "credential": "cred-notify"
+  },
+  {
+   "id": "profile",
+   "type": "service",
+   "zone": "app",
+   "logging": true,
+   "replicas": 3,
+   "critical": false,
+   "credential": "cred-profile"
+  },
+  {
+   "id": "bus",
+   "type": "queue",
+   "zone": "app",
+   "logging": true,
+   "consumer_authn": false
+  },
+  {
+   "id": "db-0",
+   "type": "datastore",
+   "zone": "data",
+   "logging": true,
+   "encrypted_at_rest": true,
+   "backup": true,
+   "access_roles": [
+    "inventory"
+   ],
+   "replicas": 2,
+   "critical": true,
+   "credential": "cred-db-0",
+   "classification": "confidential"
+  },
+  {
+   "id": "db-1",
+   "type": "datastore",
+   "zone": "data",
+   "logging": true,
+   "encrypted_at_rest": false,
+   "backup": true,
+   "access_roles": [
+    "notify"
+   ],
+   "replicas": 2,
+   "critical": true,
+   "credential": "cred-db-1",
+   "classification": "confidential"
+  }
+ ],
+ "flows": [
+  {
+   "id": "f0-user-gateway",
+   "source": "user",
+   "destination": "gateway",
+   "protocol": "https",
+   "authn": "session",
+   "encrypted": true,
+   "data": "internal",
+   "audit_logged": true,
+   "carries_secrets": false
+  },
+  {
+   "id": "f1-gateway-user",
+   "source": "gateway",
+   "destination": "user",
+   "protocol": "https",
+   "authn": "session",
+   "encrypted": true,
+   "data": "public",
+   "audit_logged": true,
+   "carries_secrets": false
+  },
+  {
+   "id": "f2-partner-gateway",
+   "source": "partner",
+   "destination": "gateway",
+   "protocol": "https",
+   "authn": "token",
+   "encrypted": true,
+   "data": "internal",
+   "audit_logged": true,
+   "carries_secrets": false
+  },
+  {
+   "id": "f3-gateway-inventory",
+   "source": "gateway",
+   "destination": "inventory",
+   "protocol": "https",
+   "authn": "mtls",
+   "encrypted": true,
+   "data": "internal",
+   "audit_logged": true,
+   "carries_secrets": false
+  },
+  {
+   "id": "f4-gateway-notify",
+   "source": "gateway",
+   "destination": "notify",
+   "protocol": "https",
+   "authn": "mtls",
+   "encrypted": true,
+   "data": "internal",
+   "audit_logged": true,
+   "carries_secrets": false
+  },
+  {
+   "id": "f5-gateway-profile",
+   "source": "gateway",
+   "destination": "profile",
+   "protocol": "https",
+   "authn": "mtls",
+   "encrypted": true,
+   "data": "internal",
+   "audit_logged": true,
+   "carries_secrets": false
+  },
+  {
+   "id": "f6-inventory-db-0",
+   "source": "inventory",
+   "destination": "db-0",
+   "protocol": "https",
+   "authn": "mtls",
+   "encrypted": true,
+   "data": "restricted",
+   "audit_logged": true,
+   "carries_secrets": false
+  },
+  {
+   "id": "f7-notify-db-1",
+   "source": "notify",
+   "destination": "db-1",
+   "protocol": "https",
+   "authn": "mtls",
+   "encrypted": true,
+   "data": "restricted",
+   "audit_logged": true,
+   "carries_secrets": false
+  },
+  {
+   "id": "f8-profile-db-0",
+   "source": "profile",
+   "destination": "db-0",
+   "protocol": "https",
+   "authn": "mtls",
+   "encrypted": true,
+   "data": "restricted",
+   "audit_logged": true,
+   "carries_secrets": false
+  },
+  {
+   "id": "f9-inventory-bus",
+   "source": "inventory",
+   "destination": "bus",
+   "protocol": "https",
+   "authn": "mtls",
+   "encrypted": true,
+   "data": "internal",
+   "audit_logged": true,
+   "carries_secrets": false
+  },
+  {
+   "id": "f10-bus-profile",
+   "source": "bus",
+   "destination": "profile",
+   "protocol": "https",
+   "authn": "mtls",
+   "encrypted": true,
+   "data": "internal",
+   "audit_logged": true,
+   "carries_secrets": false
+  },
+  {
+   "id": "f11-notify-profile",
+   "source": "notify",
+   "destination": "profile",
+   "protocol": "https",
+   "authn": "mtls",
+   "encrypted": true,
+   "data": "internal",
+   "audit_logged": true,
+   "carries_secrets": false
+  }
+ ]
+}
